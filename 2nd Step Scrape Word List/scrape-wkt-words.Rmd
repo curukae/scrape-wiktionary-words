@@ -1,0 +1,76 @@
+---
+title: "Scrape Wiktionary Words"
+author: "Egemen"
+date: "07 11 2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## These are the necessary libraries! 
+## Before you start, add SelectorGadget Chrome Extension to your Browser
+## Link: https://chrome.google.com/webstore/detail/selectorgadget/mhjhnkcfbdhnjickkkdbjoemdmbfginb
+## Watch a video of how to use the SelectorGadget: https://www.youtube.com/watch?v=YdIWI6K64zo
+## It's super simple. When you're done, run the codes!
+
+```{r}
+library(rvest)
+library(tidyverse)
+library(rversions)
+library(dplyr)
+```
+
+## We are using our link list from Step 1.
+## Make sure the .Rmd file is at the same folder with the CSV.
+## If not, change it to ---> wkt_links <- read.csv("wherever the CSV is in your computer")
+
+```{r}
+wkt_links <- read.csv("wiktionary_page_link.csv")
+  wkt_links <- wkt_links[[2]]
+
+wkt_links
+```
+
+## We are using our link list from Step 1.
+## Pay attention to step '4. parse content'. That's the part SelectorGadget really does it's trick!
+
+```{r}
+# 1. Storing the content in an Empty Dataframe
+allcontent <- data.frame()
+
+# 2. Writing a loop for Parsing
+
+for (i in wkt_links){
+  print(i)
+  
+  # 3. read the page just once
+  page<-read_html(i)
+
+  # 4. parse content
+  wkt_words <- page %>% html_nodes('#mw-pages li') %>% html_text()
+    
+  # 5. dataframe to store data from this loop
+  alldf <- data.frame(wkt_words)
+  
+  # 6. combine temp with all data
+  allcontent<-rbind(allcontent, alldf)  
+  
+}
+```
+
+## Let's check if everything with our DataFrame is okay:
+
+```{r}
+allcontent
+
+```
+
+## If so, let's store it in to a CSV and there we are!
+## Congratulations, you have a word list now.
+
+```{r}
+write.csv(alldf)
+```
+
